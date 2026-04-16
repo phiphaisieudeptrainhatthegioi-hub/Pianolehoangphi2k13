@@ -1,116 +1,111 @@
-local PlayerGui = game:GetService("CoreGui")
-local TweenService = game:GetService("TweenService")
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+repeat task.wait() until Fluent
 
--- Xóa thông báo cũ nếu có
-if PlayerGui:FindFirstChild("PianoNoticeUI") then
-    PlayerGui.PianoNoticeUI:Destroy()
+local Window = Fluent:CreateWindow({
+    Title = "Piano",
+    SubTitle = "",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(400, 300),
+    Acrylic = false, 
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.End 
+})
+
+if Window.Frame then
+    Window.Frame.Active = false
 end
 
--- Khởi tạo UI
+local Tabs = {
+    Main = Window:AddTab({ Title = "Sheet", Icon = "" })
+}
+
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "PianoNoticeUI"
-ScreenGui.Parent = PlayerGui
-ScreenGui.IgnoreGuiInset = true
-
--- Khung chính nằm giữa màn hình
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainFrame.BorderSizePixel = 0
-MainFrame.Position = UDim2.new(0.5, -175, 0.5, -100) -- Căn giữa
-MainFrame.Size = UDim2.new(0, 350, 0, 200)
-MainFrame.ClipsDescendants = true
-
--- Bo góc
+local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 12)
-UICorner.Parent = MainFrame
-
--- Viền phát sáng
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Color = Color3.fromRGB(255, 50, 50)
-UIStroke.Thickness = 2
-UIStroke.Transparency = 0.3
-UIStroke.Parent = MainFrame
-
--- Icon cảnh báo
-local Icon = Instance.new("TextLabel")
-Icon.Parent = MainFrame
-Icon.BackgroundTransparency = 1
-Icon.Position = UDim2.new(0, 0, 0, 20)
-Icon.Size = UDim2.new(1, 0, 0, 40)
-Icon.Font = Enum.Font.GothamBold
-Icon.Text = "⚠️"
-Icon.TextSize = 40
-Icon.TextColor3 = Color3.new(1, 1, 1)
-
--- Tiêu đề
-local Title = Instance.new("TextLabel")
-Title.Parent = MainFrame
-Title.BackgroundTransparency = 1
-Title.Position = UDim2.new(0, 0, 0, 65)
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Font = Enum.Font.GothamBold
-Title.Text = "HỆ THỐNG THÔNG BÁO"
-Title.TextSize = 18
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-
--- Nội dung
-local Content = Instance.new("TextLabel")
-Content.Parent = MainFrame
-Content.BackgroundTransparency = 1
-Content.Position = UDim2.new(0, 20, 0, 95)
-Content.Size = UDim2.new(1, -40, 0, 40)
-Content.Font = Enum.Font.GothamMedium
-Content.Text = "Script sẽ tạm dừng hoạt động.\nVui lòng quay lại sau."
-Content.TextSize = 16
-Content.TextColor3 = Color3.fromRGB(200, 200, 200)
-Content.TextWrapped = true
-
--- Nút Tắt (Close)
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Name = "CloseBtn"
-CloseBtn.Parent = MainFrame
-CloseBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-CloseBtn.Position = UDim2.new(0.5, -60, 0, 150)
-CloseBtn.Size = UDim2.new(0, 120, 0, 35)
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.Text = "ĐÓNG"
-CloseBtn.TextColor3 = Color3.new(1, 1, 1)
-CloseBtn.TextSize = 14
-CloseBtn.AutoButtonColor = true
-
-local BtnCorner = Instance.new("UICorner")
-BtnCorner.CornerRadius = UDim.new(0, 6)
-BtnCorner.Parent = CloseBtn
-
--- Hiệu ứng Hover nút
-CloseBtn.MouseEnter:Connect(function()
-    TweenService:Create(CloseBtn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(150, 0, 0)}):Play()
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "Toggle"
+ScreenGui.ResetOnSpawn = false
+ImageButton.Parent = ScreenGui
+ImageButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ImageButton.Position = UDim2.new(0.1, 0, 0.2, 0)
+ImageButton.Size = UDim2.new(0, 50, 0, 50)
+ImageButton.Image = "http://www.roblox.com/asset/?id=831902769514"
+ImageButton.Active = true
+ImageButton.Draggable = true
+UICorner.CornerRadius = UDim.new(1, 0) 
+UICorner.Parent = ImageButton
+ImageButton.MouseButton1Click:Connect(function()
+    Window:Minimize(not Window.Minimized)
 end)
 
-CloseBtn.MouseLeave:Connect(function()
-    TweenService:Create(CloseBtn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
-end)
+local Vim = game:GetService("VirtualInputManager")
+local playCount = 0 -- Dùng ID phiên chạy để tránh xung đột
 
--- Hiệu ứng xuất hiện
-MainFrame.Size = UDim2.new(0, 0, 0, 0)
-MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
-    Size = UDim2.new(0, 350, 0, 200),
-    Position = UDim2.new(0.5, -175, 0.5, -100)
-}):Play()
-
--- Xử lý đóng
-CloseBtn.MouseButton1Click:Connect(function()
-    local closeTween = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {
-        Size = UDim2.new(0, 0, 0, 0),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        BackgroundTransparency = 1
-    })
-    closeTween:Play()
-    closeTween.Completed:Connect(function()
-        ScreenGui:Destroy()
+local function PlaySheet(sheetText, speed)
+    playCount = playCount + 1
+    local currentSession = playCount
+    _G.CurrentPianoSession = currentSession
+    
+    task.spawn(function()
+        local i = 1
+        local delayTime = 60 / (speed * 2)
+        
+        while i <= #sheetText do
+            -- Kiểm tra nếu có phiên chạy mới hoặc yêu cầu dừng
+            if _G.CurrentPianoSession ~= currentSession then break end
+            
+            local char = sheetText:sub(i, i)
+            if char == "[" then
+                local chord = ""
+                i = i + 1
+                while i <= #sheetText and sheetText:sub(i, i) ~= "]" do
+                    chord = chord .. sheetText:sub(i, i)
+                    i = i + 1
+                end
+                for j = 1, #chord do
+                    local key = chord:sub(j, j)
+                    Vim:SendKeyEvent(true, key:upper(), false, game)
+                    task.wait(0.01)
+                    Vim:SendKeyEvent(false, key:upper(), false, game)
+                end
+            elseif char:match("[%w%d%p]") and char ~= " " then
+                Vim:SendKeyEvent(true, char:upper(), false, game)
+                task.wait(0.01)
+                Vim:SendKeyEvent(false, char:upper(), false, game)
+            end
+            task.wait(delayTime)
+            i = i + 1
+        end
     end)
-end)
+end
+
+local InputSheet = Tabs.Main:AddInput("Input", {
+    Title = "Dán Sheet",
+    Default = "",
+    Callback = function() end
+})
+
+local InputSpeed = Tabs.Main:AddSlider("Speed", {
+    Title = "BPM",
+    Default = 100,
+    Min = 20,
+    Max = 600,
+    Rounding = 0,
+    Callback = function() end
+})
+
+Tabs.Main:AddButton({
+    Title = "Chạy",
+    Callback = function()
+        PlaySheet(InputSheet.Value, InputSpeed.Value)
+    end
+})
+
+Tabs.Main:AddButton({
+    Title = "Dừng",
+    Callback = function()
+        _G.CurrentPianoSession = nil -- Hủy phiên chạy hiện tại
+    end
+})
+
+Window:SelectTab(1)
